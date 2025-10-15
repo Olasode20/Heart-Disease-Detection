@@ -57,35 +57,33 @@ def user_input_features():
 # Get user input
 input_df = user_input_features()
 
-# One-hot encode using the same method
-input_encoded = pd.get_dummies(input_df, drop_first=True)
+# Button to trigger prediction
+if st.button("🔍 Predict Heart Disease"):
 
-# Align columns with training data
-input_encoded = input_encoded.reindex(columns=trained_columns, fill_value=0)
+    # Encode input
+    input_encoded = pd.get_dummies(input_df, drop_first=True)
+    input_encoded = input_encoded.reindex(columns=trained_columns, fill_value=0)
+    input_scaled = scaler.transform(input_encoded)
 
-# Scale numeric features
-input_scaled = scaler.transform(input_encoded)
+    # Display patient data
+    st.subheader("Patient Data Preview")
+    st.write(input_df)
 
-# Display the user input
-st.subheader("Patient Data Preview")
-st.write(input_scaled)
+    # Make prediction
+    prediction = model.predict(input_scaled)
+    prediction_proba = model.predict_proba(input_scaled)
 
+    # Show results
+    st.subheader("Prediction Result")
+    if prediction[0] == 1:
+        st.error("⚠️ The model predicts a HIGH likelihood of heart disease.")
+    else:
+        st.success("✅ The model predicts a LOW likelihood of heart disease.")
 
-# Make prediction
-prediction = model.predict(input_scaled)
-prediction_proba = model.predict_proba(input_scaled)
-
-# Display results
-st.subheader("Prediction Result")
-if prediction[0] == 1:
-    st.error("⚠️ The model predicts a HIGH likelihood of heart disease.")
-else:
-    st.success("✅ The model predicts a LOW likelihood of heart disease.")
-
-# Display probabilities
-st.subheader("Prediction Probability")
-st.write(f"Probability of No Heart Disease: {prediction_proba[0][0]:.2f}")
-st.write(f"Probability of Heart Disease: {prediction_proba[0][1]:.2f}")
+    # Probabilities
+    st.subheader("Prediction Probability")
+    st.write(f"Probability of No Heart Disease: {prediction_proba[0][0]:.2f}")
+    st.write(f"Probability of Heart Disease: {prediction_proba[0][1]:.2f}")
 
 st.markdown("---")
 st.caption("Built with Streamlit | Model: Heart Disease Classifier")
